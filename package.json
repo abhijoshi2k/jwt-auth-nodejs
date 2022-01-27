@@ -1,0 +1,31 @@
+{
+	"name": "jwt-auth-nodejs",
+	"version": "1.0.0",
+	"description": "JWT auth for node.js",
+	"main": "src/app.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node src/app.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/abhijoshi2k/jwt-auth-nodejs.git"
+	},
+	"author": "Abhishek Joshi",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/abhijoshi2k/jwt-auth-nodejs/issues"
+	},
+	"homepage": "https://github.com/abhijoshi2k/jwt-auth-nodejs#readme",
+	"dependencies": {
+		"convert": "^4.4.0",
+		"dotenv": "^14.3.2",
+		"express": "^4.17.2",
+		"jsonwebtoken": "^8.5.1",
+		"mongoose": "^6.1.8",
+		"redis": "^4.0.2"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.15"
+	}
+}
