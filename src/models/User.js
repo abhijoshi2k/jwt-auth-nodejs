@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
 			validate: {
 				// Email validation
 				validator: (email) => {
-					return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
+					return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(email);
 				},
 				message: 'Invalid email address.'
 			}
