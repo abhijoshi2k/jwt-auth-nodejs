@@ -16,6 +16,13 @@ require('./connections/mongo.connection');
 app.use('/', require('./routes/auth.routes'));
 app.use('/dashboard', require('./routes/dashboard.routes'));
 
+// 404
+app.use((req, res) => {
+	res.status(404).json({
+		message: 'Not Found'
+	});
+});
+
 // Listen to available port/3000
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
