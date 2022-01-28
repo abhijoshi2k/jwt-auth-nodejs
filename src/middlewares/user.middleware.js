@@ -19,6 +19,7 @@ const findUser = async (req, res, next) => {
 		next(); // Call next middleware
 	} catch (err) {
 		// If error, return 500 (internal server error) status
+		console.log(err);
 		return res
 			.status(500)
 			.json({ message: 'Some error occurred', status: false })

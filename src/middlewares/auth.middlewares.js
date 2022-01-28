@@ -69,6 +69,7 @@ const loginPreProcessor = async (req, res, next) => {
 		next(); // Call next middleware
 	} catch (error) {
 		// If error, return 500 (internal server error) status
+		console.log(error);
 		return res
 			.status(500)
 			.json({ message: 'Some error occurred', status: false })
@@ -99,6 +100,7 @@ const signupPreProcessor = async (req, res, next) => {
 		next(); // Call next middleware
 	} catch (error) {
 		// If error, return 500 (internal server error) status
+		console.log(error);
 		return res
 			.status(500)
 			.json({ message: 'Some error occurred', status: false })
