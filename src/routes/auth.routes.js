@@ -11,10 +11,11 @@ const {
 const {
 	loginPreProcessor,
 	verifyRefreshToken,
-	verifyAccessToken
+	verifyAccessToken,
+	signupPreProcessor
 } = require('../middlewares/auth.middlewares');
 
-router.post('/signup', Signup);
+router.post('/signup', signupPreProcessor, Signup);
 router.post('/login', loginPreProcessor, Login);
 router.post('/refresh-token', verifyRefreshToken, RefreshToken);
 router.post('/logout', verifyAccessToken, Logout);

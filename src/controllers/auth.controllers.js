@@ -1,21 +1,11 @@
-// Import installed packages
-const jwt = require('jsonwebtoken');
-const { delKey, setKey } = require('../connections/redis.connection');
-
 // Import custom modules
-const User = require('../models/User');
-const {
-	generateRefreshToken,
-	generateAccessAndRefreshToken
-} = require('../utils/auth.utils');
+const { delKey, setKey } = require('../connections/redis.connection');
+const { generateAccessAndRefreshToken } = require('../utils/auth.utils');
 
 const Signup = async (req, res) => {
-	// Create new user object
-	const user = new User(req.body);
-
 	try {
 		// Save user to database
-		const newUser = await user.save();
+		const newUser = await req.user.save();
 
 		// Generate access and refresh token
 		let tokens = await generateAccessAndRefreshToken(

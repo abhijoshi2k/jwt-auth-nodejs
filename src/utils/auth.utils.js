@@ -8,6 +8,8 @@ const { setKey } = require('../connections/redis.connection');
 const jwtRefreshSeconds = convertMany(process.env.JWT_REFRESH_TIME).to(
 	'seconds'
 );
+const passwordRegex =
+	/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/;
 
 const generateRefreshToken = async (userId) => {
 	// Generate refresh token
@@ -38,4 +40,15 @@ const generateAccessAndRefreshToken = async (userId) => {
 	return { refresh_token, access_token };
 };
 
-module.exports = { generateRefreshToken, generateAccessAndRefreshToken };
+const checkPasswordValidity = (password) => {
+	// Chech with regex for at least one lowercase,
+	// one uppercase, one number, and one special character
+	// and between 6 and 16 characters
+	return passwordRegex.test(password);
+};
+
+module.exports = {
+	generateRefreshToken,
+	generateAccessAndRefreshToken,
+	checkPasswordValidity
+};

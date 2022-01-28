@@ -1,39 +1,82 @@
 // Import installed packages
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 // Import custom modules
 const User = require('../models/User');
 const { getKey } = require('../connections/redis.connection');
+const { checkPasswordValidity } = require('../utils/auth.utils');
+
+// Salt rounds for password
+const saltRounds = parseInt(process.env.SALT_ROUNDS);
 
 // Login PreProcessor
 const loginPreProcessor = async (req, res, next) => {
-	// Check if username and password are present and not empty
-	if (
-		!req.body.username ||
-		!req.body.password ||
-		req.body.username.trim() === '' ||
-		req.body.password.trim() === ''
-	) {
-		return res
-			.status(400)
-			.json({ message: 'Please enter username and password' });
+	try {
+		// Check if username and password are present and not empty
+		if (
+			!req.body.username ||
+			!req.body.password ||
+			req.body.username.trim() === '' ||
+			req.body.password.trim() === ''
+		) {
+			return res
+				.status(400)
+				.json({ message: 'Please enter username and password' });
+		}
+
+		// Check if username and password are valid
+		let user = await User.findOne({
+			username: req.body.username
+		}).exec();
+
+		// If user is not found, return 401 (unauthorized) status
+		if (!user) {
+			return res.status(401).json({ message: 'Invalid Credentials' });
+		}
+
+		// Check if password is correct
+		let passwordCorrect = await bcrypt.compare(
+			req.body.password,
+			user.password
+		);
+
+		// If password is incorrect, return 401 (unauthorized) status
+		if (!passwordCorrect) {
+			return res.status(401).json({ message: 'Invalid Credentials' });
+		}
+
+		// Store user in request object
+		req.user = user;
+		next(); // Call next middleware
+	} catch (error) {
+		return res.status(400).json({ message: error.message });
 	}
+};
 
-	// Check if username and password are valid
-	let user = await User.findOne({
-		username: req.body.username,
-		password: req.body.password
-	}).exec();
+const signupPreProcessor = async (req, res, next) => {
+	try {
+		// Check if password is of valid format
+		if (!checkPasswordValidity(req.body.password)) {
+			return res
+				.status(400)
+				.json({ message: 'Password does not meet requirements' });
+		}
+		// Hash password
+		const hashPassword = await bcrypt.hash(req.body.password, saltRounds);
 
-	// If user is not found, return 401 (unauthorized) status
-	if (!user) {
-		return res.status(401).json({ message: 'Invalid Credentials' });
+		// Create new user object
+		const user = new User({
+			username: req.body.username,
+			password: hashPassword
+		});
+
+		// Add user object to request object
+		req.user = user;
+		next(); // Call next middleware
+	} catch (error) {
+		return res.status(400).json({ message: error.message });
 	}
-
-	// Store user in request object
-	req.user = user;
-
-	next(); // Call next middleware
 };
 
 const verifyRefreshToken = async (req, res, next) => {
@@ -83,5 +126,6 @@ const verifyAccessToken = async (req, res, next) => {
 module.exports = {
 	loginPreProcessor,
 	verifyRefreshToken,
-	verifyAccessToken
+	verifyAccessToken,
+	signupPreProcessor
 };
