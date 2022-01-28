@@ -8,9 +8,7 @@ const Signup = async (req, res) => {
 		const newUser = await req.user.save();
 
 		// Generate access and refresh token
-		let tokens = await generateAccessAndRefreshToken(
-			newUser._id.toHexString()
-		);
+		let tokens = await generateAccessAndRefreshToken(newUser._id.toHexString());
 
 		// Respond with access and refresh token
 		return res
@@ -29,6 +27,7 @@ const Signup = async (req, res) => {
 				.json({ message: errorStr.trim(), status: false })
 				.end();
 		}
+
 		// Check if error is a mongoose duplicate key error (code 11000)
 		if (error.code === 11000) {
 			return res
@@ -36,6 +35,7 @@ const Signup = async (req, res) => {
 				.json({ message: 'User already registered', status: false })
 				.end();
 		}
+
 		// Internal server error
 		console.log(error);
 		return res

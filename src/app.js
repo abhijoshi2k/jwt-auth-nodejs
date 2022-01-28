@@ -28,3 +28,8 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
 });
+
+// For testing only
+if (process.env.NODE_ENV === 'test') {
+	module.exports = app;
+}

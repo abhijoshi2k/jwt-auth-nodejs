@@ -1,9 +1,6 @@
 // Import installed packages
 const mongoose = require('mongoose');
 
-// Declare gender array
-const genderArray = ['male', 'female', 'non-binary'];
-
 const userSchema = new mongoose.Schema(
 	{
 		username: {
@@ -29,6 +26,7 @@ const userSchema = new mongoose.Schema(
 			required: true,
 			unique: true,
 			trim: true,
+			lowercase: true,
 			validate: {
 				// Email validation
 				validator: (email) => {
@@ -40,13 +38,8 @@ const userSchema = new mongoose.Schema(
 		gender: {
 			type: String,
 			required: false,
-			validate: {
-				// Make sure value is one of the values in gender array
-				validator: (gender) => {
-					return genderArray.includes(gender);
-				},
-				message: 'Invalid gender.'
-			}
+			lowercase: true,
+			enum: ['male', 'female', 'non-binary']
 		},
 		dateOfBirth: {
 			type: String,
@@ -58,7 +51,8 @@ const userSchema = new mongoose.Schema(
 						return false;
 					}
 					return true;
-				}
+				},
+				message: 'Invalid date of birth.'
 			}
 		},
 		contactNumber: {
@@ -75,7 +69,7 @@ const userSchema = new mongoose.Schema(
 		role: {
 			type: String,
 			required: true,
-			default: 'user',
+			lowercase: true,
 			enum: ['user', 'admin'] // Make sure value is one of the values in the enum array
 		}
 	},

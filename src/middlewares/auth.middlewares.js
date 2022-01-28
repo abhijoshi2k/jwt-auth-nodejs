@@ -32,7 +32,7 @@ const loginPreProcessor = async (req, res, next) => {
 			req.body.password.trim() === ''
 		) {
 			return res.status(400).json({
-				message: 'Please enter username and password',
+				message: 'Invalid Credentials.',
 				status: false
 			});
 		}
@@ -46,7 +46,7 @@ const loginPreProcessor = async (req, res, next) => {
 		if (!user) {
 			return res
 				.status(401)
-				.json({ message: 'Invalid Credentials', status: false })
+				.json({ message: 'Invalid Credentials.', status: false })
 				.end();
 		}
 
@@ -60,7 +60,7 @@ const loginPreProcessor = async (req, res, next) => {
 		if (!passwordCorrect) {
 			return res
 				.status(401)
-				.json({ message: 'Invalid Credentials', status: false })
+				.json({ message: 'Invalid Credentials.', status: false })
 				.end();
 		}
 
