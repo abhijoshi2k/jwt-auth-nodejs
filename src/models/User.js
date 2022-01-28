@@ -1,5 +1,7 @@
+// Import installed packages
 const mongoose = require('mongoose');
 
+// Declare gender array
 const genderArray = ['male', 'female', 'non-binary'];
 
 const userSchema = new mongoose.Schema(
@@ -10,6 +12,7 @@ const userSchema = new mongoose.Schema(
 			unique: true,
 			trim: true,
 			validate: {
+				// Username validation
 				validator: (username) => {
 					return /^[._a-z0-9]{3,20}$/.test(username);
 				},
@@ -27,6 +30,7 @@ const userSchema = new mongoose.Schema(
 			unique: true,
 			trim: true,
 			validate: {
+				// Email validation
 				validator: (email) => {
 					return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(
 						email
@@ -39,6 +43,7 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			required: false,
 			validate: {
+				// Make sure value is one of the values in gender array
 				validator: (gender) => {
 					return genderArray.includes(gender);
 				},
@@ -49,6 +54,7 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			required: false,
 			validate: {
+				// Make sure value is a valid date
 				validator: (dob) => {
 					if (isNaN(new Date(dob).getTime())) {
 						return false;
@@ -61,6 +67,7 @@ const userSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 			validate: {
+				// Make sure value is a valid phone number
 				validator: (contactNumber) => {
 					return ('' + contactNumber).length === 10;
 				},
@@ -71,9 +78,10 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 			default: 'user',
-			enum: ['user', 'admin']
+			enum: ['user', 'admin'] // Make sure value is one of the values in the enum array
 		}
 	},
+	// Timestamps to keep track of when user was created and last updated
 	{ timestamps: true }
 );
 

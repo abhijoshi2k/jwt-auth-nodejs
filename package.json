@@ -19,7 +19,7 @@
 	"homepage": "https://github.com/abhijoshi2k/jwt-auth-nodejs#readme",
 	"dependencies": {
 		"bcrypt": "^5.0.1",
-		"convert": "^4.4.0",
+		"crypto-js": "^4.1.1",
 		"dotenv": "^14.3.2",
 		"express": "^4.17.2",
 		"jsonwebtoken": "^8.5.1",

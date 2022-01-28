@@ -1,6 +1,7 @@
 // Import installed packages
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const CryptoJS = require('crypto-js');
 
 // Import custom modules
 const User = require('../models/User');
@@ -9,6 +10,16 @@ const { checkPasswordValidity } = require('../utils/auth.utils');
 
 // Salt rounds for password
 const saltRounds = parseInt(process.env.SALT_ROUNDS);
+
+// Formatting access and refresh tokens' public keys
+const JWT_ACCESS_PUBLIC_KEY = process.env.JWT_ACCESS_PUBLIC_KEY.replace(
+	/\\n/g,
+	'\n'
+);
+const JWT_REFRESH_PUBLIC_KEY = process.env.JWT_REFRESH_PUBLIC_KEY.replace(
+	/\\n/g,
+	'\n'
+);
 
 // Login PreProcessor
 const loginPreProcessor = async (req, res, next) => {
@@ -57,8 +68,9 @@ const loginPreProcessor = async (req, res, next) => {
 		req.user = user;
 		next(); // Call next middleware
 	} catch (error) {
+		// If error, return 500 (internal server error) status
 		return res
-			.status(503)
+			.status(500)
 			.json({ message: 'Some error occurred', status: false })
 			.end();
 	}
@@ -86,8 +98,9 @@ const signupPreProcessor = async (req, res, next) => {
 		req.user = user;
 		next(); // Call next middleware
 	} catch (error) {
+		// If error, return 500 (internal server error) status
 		return res
-			.status(503)
+			.status(500)
 			.json({ message: 'Some error occurred', status: false })
 			.end();
 	}
@@ -95,21 +108,34 @@ const signupPreProcessor = async (req, res, next) => {
 
 const verifyRefreshToken = async (req, res, next) => {
 	try {
+		// Get refresh token from request body and extract user ID
 		const token = req.body.token;
-		let userId = jwt.verify(token, process.env.JWT_REFRESH_SECRET).id;
-		req.userId = userId;
+		let decodedId = jwt.verify(token, JWT_REFRESH_PUBLIC_KEY, {
+			algorithms: ['RS256']
+		}).id;
+
+		// Decrypt User ID
+		let userId = CryptoJS.AES.decrypt(
+			decodedId,
+			process.env.JWT_REFRESH_SECRET
+		).toString(CryptoJS.enc.Utf8);
+
+		// Error will be thrown if token is not valid or not present (undefined)
+		req.userId = userId; // Store user ID in request object
 
 		// verify if token is in store or not
 		let storedRefreshToken = await getKey('rt_' + userId);
 
+		// If token is not in store, return 401 (unauthorized) status
 		if (!storedRefreshToken || storedRefreshToken.token !== token) {
 			return res
 				.status(401)
 				.json({ message: 'Unauthorized request', status: false });
 		}
 
-		next();
+		next(); // If token is valid, continue to next middleware
 	} catch (err) {
+		// If token verification fails, return 401 (unauthorized) status
 		return res
 			.status(401)
 			.json({ message: 'Unauthorized request', status: false });
@@ -118,11 +144,23 @@ const verifyRefreshToken = async (req, res, next) => {
 
 const verifyAccessToken = async (req, res, next) => {
 	try {
-		const token = req.headers.authorization.split(' ')[1]; // Will throw error if token is not present
-		// Verify the token and store in request object
-		let decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+		// Get access token from request headers
+		// Will throw error if token is not present
+		const token = req.headers.authorization.split(' ')[1];
 
-		req.userId = decoded.id;
+		// Verify the token and store user ID in request object
+		let decoded = jwt.verify(token, JWT_ACCESS_PUBLIC_KEY, {
+			algorithms: ['RS256']
+		});
+
+		// Decrypt User ID
+		req.userId = CryptoJS.AES.decrypt(
+			decoded.id,
+			process.env.JWT_ACCESS_SECRET
+		).toString(CryptoJS.enc.Utf8);
+
+		// Find the time left (in seconds) for the token to expire
+		// This is needed for blacklisting the token during logoout
 		req.jwt_timeToExpire =
 			new Date(decoded.exp).getTime() - new Date().getTime() / 1000;
 

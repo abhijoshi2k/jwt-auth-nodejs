@@ -18,8 +18,9 @@ const Signup = async (req, res) => {
 			.json({ ...tokens, status: true, message: 'Signup Successful' })
 			.end();
 	} catch (error) {
-		let errorStr = '';
+		// Check if error is a validation error
 		if (error.errors) {
+			let errorStr = '';
 			for (let key in error.errors) {
 				errorStr += error.errors[key].message + ' ';
 			}
@@ -27,15 +28,18 @@ const Signup = async (req, res) => {
 				.status(400)
 				.json({ message: errorStr.trim(), status: false })
 				.end();
-		} else if (error.code === 11000) {
-			// Duplicate key error
+		}
+		// Check if error is a mongoose duplicate key error (code 11000)
+		if (error.code === 11000) {
 			return res
 				.status(409)
 				.json({ message: 'User already registered', status: false })
 				.end();
 		}
+		// Internal server error
+		console.log(error);
 		return res
-			.status(503)
+			.status(500)
 			.json({ message: 'Some error occurred', status: false })
 			.end();
 	}
@@ -54,8 +58,10 @@ const Login = async (req, res) => {
 			.json({ ...tokens, status: true, message: 'Login Successful' })
 			.end();
 	} catch (error) {
+		// Internal server error
+		console.log(error);
 		return res
-			.status(503)
+			.status(500)
 			.json({ message: 'Some error occurred', status: false })
 			.end();
 	}
@@ -72,8 +78,10 @@ const RefreshToken = async (req, res) => {
 			.json({ ...tokens, status: true, message: 'Tokens Refreshed' })
 			.end();
 	} catch (error) {
+		// Internal server error
+		console.log(error);
 		return res
-			.status(503)
+			.status(500)
 			.json({ message: 'Some error occurred', status: false })
 			.end();
 	}
@@ -97,8 +105,10 @@ const Logout = async (req, res) => {
 			.json({ message: 'Logout Successful', status: true })
 			.end();
 	} catch (error) {
+		// Internal server error
+		console.log(error);
 		return res
-			.status(503)
+			.status(500)
 			.json({ message: 'Some error occurred', status: false })
 			.end();
 	}

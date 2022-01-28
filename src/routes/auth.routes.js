@@ -15,6 +15,7 @@ const {
 	signupPreProcessor
 } = require('../middlewares/auth.middlewares');
 
+// Auth Routes
 router.post('/signup', signupPreProcessor, Signup);
 router.post('/login', loginPreProcessor, Login);
 router.post('/refresh-token', verifyRefreshToken, RefreshToken);
