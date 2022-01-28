@@ -111,7 +111,7 @@ const signupPreProcessor = async (req, res, next) => {
 const verifyRefreshToken = async (req, res, next) => {
 	try {
 		// Get refresh token from request body and extract user ID
-		const token = req.body.token;
+		const { token } = req.body;
 		let decodedId = jwt.verify(token, JWT_REFRESH_PUBLIC_KEY, {
 			algorithms: ['RS256']
 		}).id;
