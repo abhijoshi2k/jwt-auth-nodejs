@@ -13,9 +13,31 @@ const Signup = async (req, res) => {
 		);
 
 		// Respond with access and refresh token
-		return res.status(200).json(tokens);
+		return res
+			.status(200)
+			.json({ ...tokens, status: true, message: 'Signup Successful' })
+			.end();
 	} catch (error) {
-		return res.status(400).json({ message: error.message });
+		let errorStr = '';
+		if (error.errors) {
+			for (let key in error.errors) {
+				errorStr += error.errors[key].message + ' ';
+			}
+			return res
+				.status(400)
+				.json({ message: errorStr.trim(), status: false })
+				.end();
+		} else if (error.code === 11000) {
+			// Duplicate key error
+			return res
+				.status(409)
+				.json({ message: 'User already registered', status: false })
+				.end();
+		}
+		return res
+			.status(503)
+			.json({ message: 'Some error occurred', status: false })
+			.end();
 	}
 };
 
@@ -27,9 +49,15 @@ const Login = async (req, res) => {
 		);
 
 		// Respond with access and refresh token
-		return res.status(200).json(tokens);
+		return res
+			.status(200)
+			.json({ ...tokens, status: true, message: 'Login Successful' })
+			.end();
 	} catch (error) {
-		return res.status(400).json({ message: error.message });
+		return res
+			.status(503)
+			.json({ message: 'Some error occurred', status: false })
+			.end();
 	}
 };
 
@@ -39,9 +67,15 @@ const RefreshToken = async (req, res) => {
 		let tokens = await generateAccessAndRefreshToken(req.userId);
 
 		// Respond with access and refresh token
-		return res.status(200).json(tokens);
+		return res
+			.status(200)
+			.json({ ...tokens, status: true, message: 'Tokens Refreshed' })
+			.end();
 	} catch (error) {
-		return res.status(400).json({ message: error.message });
+		return res
+			.status(503)
+			.json({ message: 'Some error occurred', status: false })
+			.end();
 	}
 };
 
@@ -58,9 +92,15 @@ const Logout = async (req, res) => {
 		);
 
 		// Respond with success
-		return res.status(200).json({ message: 'Logout Successful' });
+		return res
+			.status(200)
+			.json({ message: 'Logout Successful', status: true })
+			.end();
 	} catch (error) {
-		return res.status(400).json({ message: error.message });
+		return res
+			.status(503)
+			.json({ message: 'Some error occurred', status: false })
+			.end();
 	}
 };
 

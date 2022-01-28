@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
 					return /^[._a-z0-9]{3,20}$/.test(username);
 				},
 				message:
-					'only lowercase letters, numbers, and underscores are allowed and must be between 3 and 20 characters long'
+					'Username must be between 3 and 20 characters long and can only contain letters, numbers, underscores and periods.'
 			}
 		},
 		password: {
@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
 						email
 					);
 				},
-				message: 'invalid email address'
+				message: 'Invalid email address.'
 			}
 		},
 		gender: {
@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
 				validator: (gender) => {
 					return genderArray.includes(gender);
 				},
-				message: 'Invalid gender'
+				message: 'Invalid gender.'
 			}
 		},
 		dateOfBirth: {
@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(
 				validator: (contactNumber) => {
 					return ('' + contactNumber).length === 10;
 				},
-				message: 'invalid contact number'
+				message: 'Invalid contact number.'
 			}
 		},
 		role: {

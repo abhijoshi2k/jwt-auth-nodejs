@@ -1,8 +1,11 @@
 const Dashboard = (req, res) => {
-	res.json({
-		message: 'Welcome to the dashboard',
-		username: req.user.username
-	});
+	res.status(200)
+		.json({
+			message: 'Welcome to the dashboard',
+			username: req.user.username,
+			status: true
+		})
+		.end();
 };
 
 module.exports = { Dashboard };

@@ -20,9 +20,10 @@ const loginPreProcessor = async (req, res, next) => {
 			req.body.username.trim() === '' ||
 			req.body.password.trim() === ''
 		) {
-			return res
-				.status(400)
-				.json({ message: 'Please enter username and password' });
+			return res.status(400).json({
+				message: 'Please enter username and password',
+				status: false
+			});
 		}
 
 		// Check if username and password are valid
@@ -32,7 +33,10 @@ const loginPreProcessor = async (req, res, next) => {
 
 		// If user is not found, return 401 (unauthorized) status
 		if (!user) {
-			return res.status(401).json({ message: 'Invalid Credentials' });
+			return res
+				.status(401)
+				.json({ message: 'Invalid Credentials', status: false })
+				.end();
 		}
 
 		// Check if password is correct
@@ -43,14 +47,20 @@ const loginPreProcessor = async (req, res, next) => {
 
 		// If password is incorrect, return 401 (unauthorized) status
 		if (!passwordCorrect) {
-			return res.status(401).json({ message: 'Invalid Credentials' });
+			return res
+				.status(401)
+				.json({ message: 'Invalid Credentials', status: false })
+				.end();
 		}
 
 		// Store user in request object
 		req.user = user;
 		next(); // Call next middleware
 	} catch (error) {
-		return res.status(400).json({ message: error.message });
+		return res
+			.status(503)
+			.json({ message: 'Some error occurred', status: false })
+			.end();
 	}
 };
 
@@ -58,16 +68,17 @@ const signupPreProcessor = async (req, res, next) => {
 	try {
 		// Check if password is of valid format
 		if (!checkPasswordValidity(req.body.password)) {
-			return res
-				.status(400)
-				.json({ message: 'Password does not meet requirements' });
+			return res.status(400).json({
+				message: 'Password does not meet requirements',
+				status: false
+			});
 		}
 		// Hash password
 		const hashPassword = await bcrypt.hash(req.body.password, saltRounds);
 
 		// Create new user object
 		const user = new User({
-			username: req.body.username,
+			...req.body,
 			password: hashPassword
 		});
 
@@ -75,7 +86,10 @@ const signupPreProcessor = async (req, res, next) => {
 		req.user = user;
 		next(); // Call next middleware
 	} catch (error) {
-		return res.status(400).json({ message: error.message });
+		return res
+			.status(503)
+			.json({ message: 'Some error occurred', status: false })
+			.end();
 	}
 };
 
@@ -89,12 +103,16 @@ const verifyRefreshToken = async (req, res, next) => {
 		let storedRefreshToken = await getKey('rt_' + userId);
 
 		if (!storedRefreshToken || storedRefreshToken.token !== token) {
-			return res.status(401).json({ message: 'Unauthorized' });
+			return res
+				.status(401)
+				.json({ message: 'Unauthorized request', status: false });
 		}
 
 		next();
 	} catch (err) {
-		return res.status(401).json({ message: 'Unauthorized', data: err });
+		return res
+			.status(401)
+			.json({ message: 'Unauthorized request', status: false });
 	}
 };
 
@@ -111,7 +129,10 @@ const verifyAccessToken = async (req, res, next) => {
 		// Check if token is blacklisted (User logged out)
 		let tokenBlacklisted = await getKey('bl_' + token);
 		if (tokenBlacklisted) {
-			return res.status(401).json({ message: 'Token Blacklisted' });
+			return res
+				.status(401)
+				.json({ message: 'Token Blacklisted', status: false })
+				.end();
 		}
 
 		next(); // If token is valid, continue
@@ -119,7 +140,8 @@ const verifyAccessToken = async (req, res, next) => {
 		// If token is not valid, send 401 (unauthorized) status
 		return res
 			.status(401)
-			.json({ message: 'Unauthorized requests are not allowed.' });
+			.json({ message: 'Unauthorized request.', status: false })
+			.end();
 	}
 };
 
